@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { errorHandler } from "./middlewares/error.js"
 
 const app = express()
 
@@ -22,8 +21,6 @@ import aiRoutes from "./routes/ai.routes.js"
 app.use("/api/auth", authRoutes)
 app.use("/api/designs", designRoutes)
 app.use("/api/ai", aiRoutes)
-
-app.use(errorHandler)
 
 export { app }
 
