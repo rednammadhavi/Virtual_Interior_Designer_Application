@@ -1,6 +1,6 @@
 import React from "react"
 import { useEffect, useState } from "react";
-import { getMyDesigns } from "../api/design";
+import { getUserDesigns } from "../api/design";
 
 export default function Dashboard() {
   const [designs, setDesigns] = useState([]);
@@ -9,7 +9,7 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await getMyDesigns();
+        const { data } = await getUserDesigns();
         setDesigns(data?.data || []);
       } finally {
         setLoading(false);

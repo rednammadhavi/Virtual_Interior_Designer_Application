@@ -20,6 +20,7 @@ export default function RoomDesigner() {
     alert("Saved!");
   };
 
+
   return (
     <div className="flex max-w-6xl mx-auto p-4 gap-4">
       <SidebarFurniture onAdd={onAdd} />

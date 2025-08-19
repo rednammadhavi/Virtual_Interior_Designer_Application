@@ -1,21 +1,24 @@
 import { Design } from "../models/Design.models.js"
-import { cloudinary } from "../utils/cloudinary.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 import { ApiError } from "../utils/apiError.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
 const saveDesign = asyncHandler(async (req, res) => {
-    if (!req.file) {
-        throw new ApiError(400, "No image file uploaded")
+    let imageUrl = null
+
+    if (req.file) {
+        const result = await uploadOnCloudinary(req.file.path)
+        if (result?.secure_url) {
+            imageUrl = result.secure_url
+        }
     }
 
-    const result = await cloudinary.uploader.upload(req.file.path)
-
     const design = await Design.create({
-        user: req.user,
-        title: req.body.title,
-        imageUrl: result.secure_url,
-        furnitureData: req.body.furnitureData || {}
+        user: req.user._id,
+        title: req.body.title || "Untitled",
+        imageUrl,
+        furnitureData: req.body.furnitureData ? JSON.parse(req.body.furnitureData) : {}
     })
 
     return res
@@ -24,7 +27,7 @@ const saveDesign = asyncHandler(async (req, res) => {
 })
 
 const getUserDesigns = asyncHandler(async (req, res) => {
-    const designs = await Design.find({ user: req.user })
+    const designs = await Design.find({ user: req.user._id }).sort({ createdAt: -1 })
     return res.json(
         new ApiResponse(200, designs, "User designs retrieved successfully")
     )

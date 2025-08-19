@@ -1,3 +1,4 @@
+// Frontend/src/context/AuthContext.jsx
 import React from "react"
 import { createContext, useEffect, useMemo, useState } from "react";
 import { getCurrentUser, login as apiLogin, register as apiRegister, logout as apiLogout } from "../api/auth";
@@ -9,11 +10,33 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount, if token present, fetch current user
   useEffect(() => {
-    const saved = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    if (saved && token) setUser(JSON.parse(saved));
-    setLoading(false);
+    const init = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          // try to fetch current user from API
+          const { data } = await getCurrentUser();
+          if (data?.data) {
+            setUser(data.data);
+            localStorage.setItem("user", JSON.stringify(data.data));
+          } else {
+            setUser(null);
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+          }
+        }
+      } catch (e) {
+        // invalid token or request failed — clear
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
   }, []);
 
   const login = async (creds) => {
@@ -47,8 +70,9 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await apiLogout();
-    } catch { }
-    localStorage.clear();
+    } catch { /* ignore */ }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     toast.info("Logged out");
   };
