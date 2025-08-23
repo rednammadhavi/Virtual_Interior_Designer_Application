@@ -1,7 +1,12 @@
-// Frontend/src/context/AuthContext.jsx
-import React from "react"
-import { createContext, useEffect, useMemo, useState } from "react";
-import { getCurrentUser, login as apiLogin, register as apiRegister, logout as apiLogout } from "../api/auth";
+import React, { createContext, useEffect, useMemo, useState } from "react";
+import {
+  getCurrentUser,
+  login as apiLogin,
+  register as apiRegister,
+  logout as apiLogout,
+  forgotPassword as apiForgotPassword,
+  resetPassword as apiResetPassword,
+} from "../api/auth";
 import { toast } from "react-toastify";
 
 export const AuthContext = createContext(null);
@@ -10,13 +15,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On mount, if token present, fetch current user
   useEffect(() => {
     const init = async () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          // try to fetch current user from API
           const { data } = await getCurrentUser();
           if (data?.data) {
             setUser(data.data);
@@ -28,17 +31,17 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } catch (e) {
-        // invalid token or request failed — clear
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
       } finally {
         setLoading(false);
       }
-    }
+    };
     init();
   }, []);
 
+  // Login
   const login = async (creds) => {
     try {
       const { data } = await apiLogin(creds);
@@ -48,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         setUser(u);
         localStorage.setItem("user", JSON.stringify(u));
       }
-      toast.success("Logged in");
+      toast.success("Logged in successfully");
       return true;
     } catch (e) {
       toast.error(e?.response?.data?.message || "Login failed");
@@ -56,10 +59,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register
   const register = async (formData) => {
     try {
       const { data } = await apiRegister(formData);
-      toast.success("Registered! Please login.");
+      toast.success("Registered successfully! Please login.");
       return data;
     } catch (e) {
       toast.error(e?.response?.data?.message || "Registration failed");
@@ -67,17 +71,43 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout
   const logout = async () => {
     try {
       await apiLogout();
-    } catch { /* ignore */ }
+    } catch { }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     toast.info("Logged out");
   };
 
-  const value = useMemo(() => ({ user, setUser, login, register, logout, loading }), [user, loading]);
+  // Forgot Password
+  const forgotPassword = async (email) => {
+    try {
+      await apiForgotPassword(email);
+      toast.success("Password reset link sent to your email");
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to send reset link");
+      throw e;
+    }
+  };
+
+  // Reset Password
+  const resetPassword = async (token, passwords) => {
+    try {
+      await apiResetPassword(token, passwords);
+      toast.success("Password has been reset successfully");
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to reset password");
+      throw e;
+    }
+  };
+
+  const value = useMemo(
+    () => ({ user, setUser, login, register, logout, forgotPassword, resetPassword, loading }),
+    [user, loading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
