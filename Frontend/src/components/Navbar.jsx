@@ -14,7 +14,7 @@ export default function Navbar() {
       : "text-gray-700 " + linkClasses;
 
   return (
-    <header className="bg-white border-b shadow-sm sticky top-0 z-50">
+    <header className="bg-indigo-50 border-b shadow-sm sticky top-0 z-50">
       <nav className="max-w-6xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link to="/" className="font-bold text-2xl text-indigo-600">
@@ -25,7 +25,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <NavLink to="/" className={activeLink}>Home</NavLink>
           <NavLink to="/design" className={activeLink}>Designer</NavLink>
-          <NavLink to="/ai" className={activeLink}>AI Designer</NavLink>
+          <NavLink to="/design-with-ai" className={activeLink}>AI Designer</NavLink>
           {user && <NavLink to="/dashboard" className={activeLink}>Dashboard</NavLink>}
           {user && <NavLink to="/profile" className={activeLink}>Profile</NavLink>}
         </div>
@@ -74,7 +74,7 @@ export default function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <NavLink to="/" className={activeLink} onClick={() => setIsOpen(false)}>Home</NavLink>
             <NavLink to="/design" className={activeLink} onClick={() => setIsOpen(false)}>Designer</NavLink>
-            <NavLink to="/ai" className={activeLink} onClick={() => setIsOpen(false)}>AI Designer</NavLink>
+            <NavLink to="/design-with-ai" className={activeLink} onClick={() => setIsOpen(false)}>AI Designer</NavLink>
             {user && <NavLink to="/dashboard" className={activeLink} onClick={() => setIsOpen(false)}>Dashboard</NavLink>}
             {user && <NavLink to="/profile" className={activeLink} onClick={() => setIsOpen(false)}>Profile</NavLink>}
 

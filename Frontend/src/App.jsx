@@ -30,7 +30,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/design" element={<RoomDesigner />} />
         </Route>
-        <Route path="/ai" element={<AIDesigner />} />
+        <Route path="/design-with-ai" element={<AIDesigner />} />
       </Routes>
     </BrowserRouter>
   );
